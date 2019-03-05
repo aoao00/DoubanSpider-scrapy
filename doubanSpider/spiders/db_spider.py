@@ -1,8 +1,10 @@
 import re
+import json
 
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from scrapy.loader import ItemLoader
+from scrapy import Request
 
 from doubanSpider.items import MovieItem
 import scrapy
@@ -11,13 +13,30 @@ import scrapy
 class db_spider(scrapy.Spider):
     name="douban"
     alowed_domains=['http://movie.douban.com/']
+
+    '''
     start_urls=['https://movie.douban.com/subject/26266893/',
                 'https://movie.douban.com/subject/1652587/',
                 'https://movie.douban.com/subject/24773958/',
                 'https://movie.douban.com/subject/24773958/'
                 ]
-            
+    '''
+    def start_requests(self):
+        url_pr='https://movie.douban.com/j/new_search_subjects?sort=U&range=0,10&tags=电影&start'
+        for i in range(0,9980,20):
+            url=url_pr+"="+str(i)
+            yield Request(url)
+    
     def parse(self,response):
+        jsobj=json.loads(response.body)
+        for list in jsobj['data']:
+            url_mov=list['url']
+            yield scrapy.Request(url_mov,callback=self.mov_parse)
+        
+
+
+
+    def mov_parse(self,response):
         movie=MovieItem()
         movie['m_co_l']=response.xpath('//a[@class="nbgnbg"]/img/@src').get()
         movie['m_nam']=response.xpath('/html/body/div[3]/div[1]/h1/span[1]/text()').get()

@@ -92,9 +92,12 @@ DOWNLOAD_DELAY = 3
 ETRY_ENABLE = True
 RETRY_TIMES = 10
 DOWNLOAD_TIMEOUT = 10
+MONGO_URI='mongodb://127.0.0.1:27017'
+MONGO_DATABASE='DOUBAN'
 ITEM_PIPELINES = {
     'scrapy.downloadermiddlewares.retry.RetryMiddleware':100,
     'doubanSpider.pipelines.JsonWriterPipeline': 300,
+    'doubanSpider.pipelines.douban_mongodb_Pipeline': 301,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
